@@ -5,6 +5,7 @@ const User = require('./models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const Movie = require('./models/Movie');
 
 const app = express();
 
@@ -71,8 +72,16 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
-app.get('/profile', isLoggedIn, (req, res) => {
-    res.send("This is the profile route and it is protected");
+app.get('/profile', isLoggedIn, async (req, res) => {
+    try {
+        // fetching movies created by logged-in user
+        const movies = await Movie.find({ createdBy: req.user.userId });
+        const user = await User.findOne({ email: req.user.email });
+        res.render('profile', { user, movies });
+    } catch (error) {
+        console.error(error);
+        res.send('Error fetching profile data', error);
+    }
 })
 
 // logic for logging in a user
@@ -92,7 +101,7 @@ app.post('/login', async (req, res) => {
             if (result) {
                 let token = jwt.sign({ email, userId: existingUser._id }, process.env.JWT_SECRET);
                 res.cookie("token", token);
-                res.send("Sucessfully logged In :)");
+                res.redirect("/profile");
                 console.log("Sucessfully logged In :)")
             } else {
                 console.log("Error while logging In :)")
@@ -111,13 +120,15 @@ app.post('/login', async (req, res) => {
 app.get('/logout', (req, res) => {
     res.cookie("token", "");
     console.log("User Logged out sucesssfully :)");
-    res.redirect('login');
+    res.redirect('/login');
 })
 
 // Middleware for checking if user is logged in or not;
 function isLoggedIn(req, res, next) {
     if (req.cookies.token === "") {
-        res.send("You must be logged in :/");
+        // res.send("You must be logged in :/");
+        console.log("You must be logged in :/");
+        res.redirect('/login');
     } else {
         let data = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
         req.user = data;
