@@ -26,8 +26,14 @@ mongoose.connect(process.env.MONGO_URL)
         console.log("Database not connected :(" + err);
     })
 
-app.get('/', (req, res) => {
-    res.render('index');
+app.get('/', async (req, res) => {
+    try {
+        const movies = await Movie.find({}).populate('createdBy', 'username');
+        res.render('index', { movies });
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+        res.send("Server error while fetching movies");
+    }
 });
 
 app.get('/register', (req, res) => {
