@@ -31,6 +31,7 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
+// logic for registering a user
 app.post('/register', async (req, res) => {
     const { username, password, email } = req.body;
 
@@ -61,6 +62,7 @@ app.post('/register', async (req, res) => {
         // return res.json({ message: "User Registered successfully" });
     } catch (error) {
         console.error(error);
+        res.send(error);
         // return res.json({ message: error });
     }
 })
@@ -68,6 +70,36 @@ app.post('/register', async (req, res) => {
 app.get('/login', (req, res) => {
     res.render('login');
 });
+
+// logic for logging in a user
+app.post('/login', async (req, res) => {
+    const { password, email } = req.body;
+
+    try {
+        const existingUser = await User.findOne({ email });
+
+        if (!existingUser) {
+            console.log("Something went wrong");
+            return res.send("Something went wrong");
+            // return res.json({ message: "Already registered user" });
+        }
+
+        bcrypt.compare(password, existingUser.password, (err, result) => {
+            if (result) {
+                console.log("Sucessfully logged In :)")
+                res.send("Sucessfully logged In :)");
+            } else {
+                console.log("Error while logging In :)")
+                res.redirect('/login');
+            }
+        })
+
+    } catch (error) {
+        console.error(error);
+        res.send(error);
+        // return res.json({ message: error });
+    }
+})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
