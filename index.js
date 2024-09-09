@@ -71,6 +71,10 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
+app.get('/profile', isLoggedIn, (req, res) => {
+    res.send("This is the profile route and it is protected");
+})
+
 // logic for logging in a user
 app.post('/login', async (req, res) => {
     const { password, email } = req.body;
@@ -86,8 +90,10 @@ app.post('/login', async (req, res) => {
 
         bcrypt.compare(password, existingUser.password, (err, result) => {
             if (result) {
-                console.log("Sucessfully logged In :)")
+                let token = jwt.sign({ email, userId: existingUser._id }, process.env.JWT_SECRET);
+                res.cookie("token", token);
                 res.send("Sucessfully logged In :)");
+                console.log("Sucessfully logged In :)")
             } else {
                 console.log("Error while logging In :)")
                 res.redirect('/login');
@@ -100,6 +106,24 @@ app.post('/login', async (req, res) => {
         // return res.json({ message: error });
     }
 })
+
+// logic for logging out a user
+app.get('/logout', (req, res) => {
+    res.cookie("token", "");
+    console.log("User Logged out sucesssfully :)");
+    res.redirect('login');
+})
+
+// Middleware for checking if user is logged in or not;
+function isLoggedIn(req, res, next) {
+    if (req.cookies.token === "") {
+        res.send("You must be logged in :/");
+    } else {
+        let data = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+        req.user = data;
+        next();
+    }
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
