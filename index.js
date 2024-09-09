@@ -13,6 +13,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use(isLoggedIn);
+
 app.set('view engine', 'ejs');
 
 // Connect to MongoDB
@@ -55,12 +57,10 @@ app.post('/register', async (req, res) => {
 
                 let token = jwt.sign({ email, userId: newUser._id }, process.env.JWT_SECRET);
                 res.cookie("token", token);
-                res.send("User registered sucessfully");
+                res.redirect("/profile");
+                console.log("User registered sucessfully");
             });
         });
-
-        console.log("User registered successfully");
-        // return res.json({ message: "User Registered successfully" });
     } catch (error) {
         console.error(error);
         res.send(error);
@@ -71,18 +71,6 @@ app.post('/register', async (req, res) => {
 app.get('/login', (req, res) => {
     res.render('login');
 });
-
-app.get('/profile', isLoggedIn, async (req, res) => {
-    try {
-        // fetching movies created by logged-in user
-        const movies = await Movie.find({ createdBy: req.user.userId });
-        const user = await User.findOne({ email: req.user.email });
-        res.render('profile', { user, movies });
-    } catch (error) {
-        console.error(error);
-        res.send('Error fetching profile data', error);
-    }
-})
 
 // logic for logging in a user
 app.post('/login', async (req, res) => {
@@ -123,20 +111,66 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 })
 
+// Protected Routes
+app.get('/profile', isLoggedIn, async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login');
+    }
+
+    try {
+        // fetching movies created by logged-in user
+        const movies = await Movie.find({ createdBy: req.user.userId });
+        const user = await User.findOne({ email: req.user.email });
+        res.render('profile', { user, movies });
+    } catch (error) {
+        console.error(error);
+        res.send('Error fetching profile data', error);
+    }
+})
+app.get('/movies/create', isLoggedIn, (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login');
+    }
+    res.render('createMovie');
+});
+
+app.post('/movies/create', isLoggedIn, async (req, res) => {
+    const { title, description, imdbRating, genre } = req.body;
+    try {
+        const newMovie = await Movie.create({
+            title,
+            description,
+            imdbRating,
+            genre,
+            createdBy: req.user.userId
+        });
+        console.log('Movie created successfully :)');
+        res.redirect('/profile');
+    } catch (error) {
+        console.error(error);
+        res.send('Error creating movie');
+    }
+})
+
 // Middleware for checking if user is logged in or not;
 function isLoggedIn(req, res, next) {
-    if (req.cookies.token === "") {
-        // res.send("You must be logged in :/");
+    const token = req.cookies.token;
+    if (!token) {
+        req.user = null;
         console.log("You must be logged in :/");
-        res.redirect('/login');
     } else {
-        let data = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        req.user = data;
-        next();
+        try {
+            const data = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = data;
+        } catch (error) {
+            req.user = null;
+        }
     }
+    res.locals.user = req.user;  // Make user available in all EJS views
+    next();
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
