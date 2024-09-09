@@ -10,11 +10,14 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">MovieApp</a>
+            <a class="navbar-brand" href="/">🎦 MovieTalk</a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Register</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/login">Login</a>
                     </li>
@@ -25,7 +28,7 @@
 
     <div class="container mt-5">
         <h2 class="text-center">Register</h2>
-        <form action="/register" method="POST" class="mt-4">
+        <form action="/register" method="POST" class="mt-4" autocomplete="off">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" required>
