@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const Movie = require('./models/Movie');
+const multer = require('multer');
 
 const app = express();
 
@@ -15,7 +16,21 @@ app.use(cookieParser());
 
 app.use(isLoggedIn);
 
+app.use('/uploads', express.static('uploads'));
+
 app.set('view engine', 'ejs');
+
+// using multer to store file on disc
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+        return cb(null, `${Date.now()}-${file.originalname}`);
+    }
+})
+
+const upload = multer({ storage }).single('poster');
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL)
@@ -140,13 +155,14 @@ app.get('/movies/create', isLoggedIn, (req, res) => {
     res.render('createMovie');
 });
 
-app.post('/movies/create', isLoggedIn, async (req, res) => {
+app.post('/movies/create', isLoggedIn, upload, async (req, res) => {
     const { title, description, imdbRating, genre } = req.body;
     try {
         const newMovie = await Movie.create({
             title,
             description,
             imdbRating,
+            poster: req.file ? `${req.file.path}` : null,
             genre,
             createdBy: req.user.userId
         });
