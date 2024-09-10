@@ -31,50 +31,55 @@
                 </ul>
             </div>
         </div>
-        </nav>
+    </nav>
 
-        <div class="container mt-5">
-            <h1>Create a New Movie</h1>
+    <div class="container mt-5">
+        <h1>Create a New Movie</h1>
 
-            <form action="/movies/create" method="POST">
-                <div class="mb-3">
-                    <label for="title" class="form-label">Movie Title</label>
-                    <input placeholder="Add movie title...." type="text" class="form-control" name="title" required>
-                </div>
+        <form action="/movies/create" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="title" class="form-label">Movie Title</label>
+                <input placeholder="Add movie title...." type="text" class="form-control" name="title" required>
+            </div>
 
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" name="description" rows="2" required maxlength="100"
-                        placeholder="Add description max 100 characters"></textarea>
-                </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" name="description" rows="2" required maxlength="100"
+                    placeholder="Add description max 100 characters"></textarea>
+            </div>
 
-                <div class="mb-3">
-                    <label for="imdbRating" class="form-label">IMDb Rating</label>
-                    <input type="number" step="0.1" min="0" max="10" class="form-control" name="imdbRating" required>
-                </div>
+            <div class="mb-3">
+                <label for="imdbRating" class="form-label">IMDb Rating</label>
+                <input type="number" step="0.1" min="0" max="10" class="form-control" name="imdbRating" required>
+            </div>
 
-                <div class="mb-3">
-                    <label for="genre" class="form-label">Genre</label>
-                    <select class="form-select" id="genre" name="genre" required>
-                        <option value="" disabled selected>Select Genre</option>
-                        <option value="Action">Action</option>
-                        <option value="Comedy">Comedy</option>
-                        <option value="Drama">Drama</option>
-                        <option value="Horror">Horror</option>
-                        <option value="Sci-Fi">Sci-Fi</option>
-                        <option value="Romance">Romance</option>
-                        <option value="Thriller">Thriller</option>
-                        <option value="Adventure">Adventure</option>
-                        <option value="Fantasy">Fantasy</option>
-                        <option value="Animation">Animation</option>
-                    </select>
-                </div>
+            <div class="mb-3">
+                <label for="poster" class="form-label">Upload movie poster</label>
+                <input type="file" class="form-control" name="poster" required>
+            </div>
 
-                <button type="submit" class="btn btn-primary">Add Movie</button>
-            </form>
-        </div>
+            <div class="mb-3">
+                <label for="genre" class="form-label">Genre</label>
+                <select class="form-select" id="genre" name="genre" required>
+                    <option value="" disabled selected>Select Genre</option>
+                    <option value="Action">Action</option>
+                    <option value="Comedy">Comedy</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Sci-Fi">Sci-Fi</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Adventure">Adventure</option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Animation">Animation</option>
+                </select>
+            </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+            <button type="submit" class="btn btn-primary">Add Movie</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
